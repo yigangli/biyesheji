@@ -1,21 +1,11 @@
 package etl
 
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.regex.Pattern
 
+import org.apache.spark.sql.DataFrame
+
 object ETLUtil {
-  //1.正则匹配
-  val regex = """(\S+)\s+(\S+)\s+\[(.+)\]\s+\"(.+)\"\s+(\d+)\s+(\d+)\s+\"(.+)\"\s+\"(.+)\""""
-  val pattern = Pattern.compile(regex)
-  def regexMatch(str:String):Option[LogInfo]={
-    val matcher = pattern.matcher(str)
-    if(matcher.matches()){
-      Some(LogInfo(matcher.group(1),matcher.group(2),LocalDateTime.parse(matcher.group(3),DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z")),matcher.group(4),matcher.group(5),matcher.group(6),matcher.group(7),matcher.group(8)))
-    }else{
-      None
-    }
-  }
+
   //2.过滤URL中下载文件的无用行
   def urlFilter(msg:String):Boolean={
     val field = msg.split("\\s+")
@@ -73,5 +63,11 @@ object ETLUtil {
     }else{
       ip
     }
+  }
+  def saveData(df: DataFrame,dbName:String,tableName:String,saveMode:String="overwrite",format:String="parquet"): Unit ={
+    df.write.
+      format(format).
+      mode(saveMode).
+      saveAsTable(s"${dbName}.${tableName}")
   }
 }

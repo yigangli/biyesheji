@@ -14,7 +14,7 @@ object Filter2Sql {
     // 2、丢掉sentbytes
     val df3 = df2.drop("sentBytes","status")
     //读userAgent参考信息文件,设置为广播变量
-    val userAgent = spark.sparkContext.textFile("hdfs://master:9000/user/xdl/data/userAgent.dat")
+    val userAgent = spark.sparkContext.textFile("hdfs://master:9000/userAgent.txt")
     val userAgenttransform = userAgent.map(line=>{
       val newline = line.replaceAll("\"","")
       if(newline.startsWith("User-Agent:")){
