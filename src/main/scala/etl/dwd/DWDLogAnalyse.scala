@@ -26,14 +26,15 @@ object DWDLogAnalyse {
       }
     }
     val dwdDf = odsDf.withColumn("district",iptoArea($"ip")).
+      withColumn("time",substring($"time",0,10)).
       withColumn("year",substring($"time",0,4)).
       withColumn("month",substring($"time",6,2)).
       withColumn("day",substring($"time",9,2)).
       withColumn("referer",formatReferer($"referer"))
     dwdDf.createOrReplaceTempView("log")
     //创建ods(贴源层)分区表
-    spark.sql("""SET HIVE.EXEC.DYNAMIC.PARTITION=TRUE""")
-    spark.sql("""SET HIVE.EXEC.DYNAMIC.PARTITION.MODE=NONSTRICT""")
+    spark.sql("""set hive.exec.dynamic.partition=true""")
+    spark.sql("""set hive.exec.dynamic.partition.mode=nonstrict""")
     spark.sql(
       """CREATE TABLE IF NOT EXISTS LOG_DWD.LOGANALYSE_DWD(IP STRING ,DISTRICT STRING,SESSIONID STRING,TIME STRING,URL STRING,
         |STATUS STRING,SENTBYTES STRING,REFERER STRING,USERAGENT STRING) PARTITIONED BY(YEAR STRING,MONTH STRING,DAY STRING)""".stripMargin)
