@@ -28,7 +28,8 @@ object DWDLogAnalyse {
     val dwdDf = odsDf.withColumn("district",iptoArea($"ip")).
       withColumn("year",substring($"time",0,4)).
       withColumn("month",substring($"time",6,2)).
-      withColumn("day",substring($"time",9,2))
+      withColumn("day",substring($"time",9,2)).
+      withColumn("referer",formatReferer($"referer"))
     dwdDf.createOrReplaceTempView("log")
     //创建ods(贴源层)分区表
     spark.sql("""SET HIVE.EXEC.DYNAMIC.PARTITION=TRUE""")
@@ -51,6 +52,31 @@ object DWDLogAnalyse {
         |MONTH,
         |DAY FROM LOG""".stripMargin)
     spark.stop()
+  }
+  def formatReferer: UserDefinedFunction =udf{
+    (str:String)=>{
+      val baidur = """(.+baidu.+)""".r
+      val googler = """(.+google.+)""".r
+      val weibor = """(.+weibo.+)""".r
+      val rmbr = """(.+100rmb.+)""".r
+      val blogr = """(.+blog.+)""".r
+      val cnodejsr = """(.+cnodejs.+)""".r
+      val weixinr = """(.+weixin.+)""".r
+      val duowanr = """(.+duowan.+)""".r
+      val cloudr = """(.+cloud.+)""".r
+      str match {
+        case baidur(_) => "baidu"
+        case googler(_) => "google"
+        case weibor(_) => "weibo"
+        case rmbr(_) => "100rmb"
+        case blogr(_) => "blog"
+        case cnodejsr(_) => "cnodejs"
+        case weixinr(_) => "weixin"
+        case duowanr(_) => "duowan"
+        case cloudr(_) => "cloud"
+        case _ => "other"
+      }
+    }
   }
 
 }

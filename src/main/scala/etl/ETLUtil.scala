@@ -3,6 +3,8 @@ package etl
 import java.util.regex.Pattern
 
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.expressions.UserDefinedFunction
+import org.apache.spark.sql.functions._
 
 object ETLUtil {
 

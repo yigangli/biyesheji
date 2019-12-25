@@ -2,6 +2,8 @@ package etl.dwd
 
 import etl.{ETLUtil, LogInfoETL2}
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.expressions.UserDefinedFunction
+import org.apache.spark.sql.functions.udf
 
 object DWDLogAnalyse2 {
   def main(args: Array[String]): Unit = {
@@ -29,23 +31,23 @@ object DWDLogAnalyse2 {
     }).collect()
     val userAgentBroadCast = spark.sparkContext.broadcast(userAgenttransform)
     //读URL栏目信息文件,设置为广播变量
-    val urlcolumn = spark.sparkContext.textFile("hdfs://master:9000/user/xdl/data/url.dat")
+    val urlcolumn = spark.sparkContext.textFile("hdfs://master:9000/url.txt")
     val urltransform = urlcolumn.map(line=>{
       val field = line.split("\\s+")
       (field(0),field(1))
     }).collect()
     val urlbroadcast = spark.sparkContext.broadcast(urltransform)
-    val rdd4 = clearDf.rdd.map(x=>LogInfoETL2(x.getAs("ip"),x.getAs("district"),x.getAs("sessionid"),x.getAs("time"),x.getAs("url"),x.getAs("referer"),x.getAs("useragent"),x.getAs("yearstr"),x.getAs("monthstr"),x.getAs("daystr" )))
+    //useragent转换为设备，url转换为栏目
+    val rdd4 = clearDf.rdd.map(x=>LogInfoETL2(x.getAs("ip"),x.getAs("district"),x.getAs("sessionid"),x.getAs("time"),x.getAs("url"),x.getAs("referer"),x.getAs("useragent"),x.getAs("year"),x.getAs("month"),x.getAs("day" )))
       .map(obj=>{
-        // 3、useragent > devicetypeid
         ETLUtil.userAgentofColumn(obj,userAgentBroadCast.value)
-        // 4、referrer > Referehostid
-        // 5、url > Columnid
         ETLUtil.urlOfColumn(obj,urlbroadcast.value)
         obj
       })
     import spark.implicits._
-    val df = rdd4.toDS()
-    df.createOrReplaceTempView("df")
+    val df = rdd4.toDF()
+    ETLUtil.saveData(df,"LOG_DWD","LOGANALYSE2_DWD")
+
   }
+
 }
