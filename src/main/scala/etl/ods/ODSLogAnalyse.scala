@@ -13,7 +13,7 @@ object ODSLogAnalyse {
     spark.sparkContext.setLogLevel("WARN")
     import spark.implicits._
     val sc = spark.sparkContext
-    val lines = sc.textFile("hdfs://master:9000/access01.log")
+    val lines = sc.textFile("hdfs://master:9000/data/access01.log")
     val loginfos :RDD[LogInfo] = lines.map(line => {
       //1.正则匹配
       regexMatch(line).get

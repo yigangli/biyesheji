@@ -17,7 +17,7 @@ object DWDLogAnalyse2 {
     // 2、丢掉sentbytes
     drop("sentBytes","status")
     //读userAgent参考信息文件,设置为广播变量
-    val userAgent = spark.sparkContext.textFile("hdfs://master:9000/userAgent.txt")
+    val userAgent = spark.sparkContext.textFile("hdfs://master:9000/data/userAgent.txt")
     val userAgenttransform = userAgent.map(line=>{
       val newline = line.replaceAll("\"","")
       if(newline.startsWith("User-Agent:")){
@@ -31,7 +31,7 @@ object DWDLogAnalyse2 {
     }).collect()
     val userAgentBroadCast = spark.sparkContext.broadcast(userAgenttransform)
     //读URL栏目信息文件,设置为广播变量
-    val urlcolumn = spark.sparkContext.textFile("hdfs://master:9000/url.txt")
+    val urlcolumn = spark.sparkContext.textFile("hdfs://master:9000/data/url.txt")
     val urltransform = urlcolumn.map(line=>{
       val field = line.split("\\s+")
       (field(0),field(1))

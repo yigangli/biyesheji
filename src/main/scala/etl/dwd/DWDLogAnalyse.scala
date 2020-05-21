@@ -14,7 +14,7 @@ object DWDLogAnalyse {
     import spark.implicits._
     val sc = spark.sparkContext
     val odsDf = spark.sql("SELECT * FROM LOG_ODS.LOGANALYSE_ODS")
-    val ipfile = sc.textFile("hdfs://master:9000/ip.txt")
+    val ipfile = sc.textFile("hdfs://master:9000/data/ip.txt")
     val ipStandard :Array[(Long,Long,String)] = ipfile.map(text=>{
       val msg = text.split("\\s+")
       (ETLUtil.ipTo256Long(msg(0)),ETLUtil.ipTo256Long(msg(1)),msg(2))
