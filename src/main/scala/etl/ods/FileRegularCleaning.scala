@@ -6,7 +6,7 @@ import etl.{ETLUtil, LogInfo}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 
-object ODSLogAnalyse {
+object FileRegularCleaning {
 
   def main(args: Array[String]): Unit = {
     val spark = SparkSession.builder().appName(this.getClass.getCanonicalName).enableHiveSupport().getOrCreate()
